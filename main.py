@@ -17,10 +17,16 @@ class Board:
         self.coordinate = [[None for i in range(4)] for j in range(4)]
         self.screen = screen
         self.font = pygame.font.Font('arial.ttf', 40)
+        self.save = list()
 
         self.spawn()
         self.spawn()
         self.render()
+
+    def append_save(self, save):
+        self.save.append(save)
+        if len(self.save) > 100:
+            self.save.pop(0)
 
     def spawn(self):
         while True:
@@ -28,7 +34,7 @@ class Board:
             y = random.randrange(4)
 
             if self.coordinate[x][y] is None:
-                if random.randrange(2) == 0:
+                if 0 <= random.randrange(10) <= 7:
                     self.coordinate[x][y] = 2
                 else:
                     self.coordinate[x][y] = 4
@@ -69,6 +75,7 @@ class Board:
 
     def up(self):
         stable = True
+        save = copy.deepcopy(self.coordinate)
         for x in range(4):
             empty_phase = False
             for y in range(4):
@@ -105,6 +112,7 @@ class Board:
         if stable:
             return False
 
+        self.append_save(save)
         self.spawn()
         self.render()
 
@@ -112,6 +120,7 @@ class Board:
 
     def down(self):
         stable = True
+        save = copy.deepcopy(self.coordinate)
         for x in range(4):
             empty_phase = False
             for y in range(3, -1, -1):
@@ -148,6 +157,7 @@ class Board:
         if stable:
             return False
 
+        self.append_save(save)
         self.spawn()
         self.render()
 
@@ -155,6 +165,7 @@ class Board:
 
     def left(self):
         stable = True
+        save = copy.deepcopy(self.coordinate)
         for y in range(4):
             empty_phase = False
             for x in range(4):
@@ -191,6 +202,7 @@ class Board:
         if stable:
             return False
 
+        self.append_save(save)
         self.spawn()
         self.render()
 
@@ -198,6 +210,7 @@ class Board:
 
     def right(self):
         stable = True
+        save = copy.deepcopy(self.coordinate)
         for y in range(4):
             empty_phase = False
             for x in range(3, -1, -1):
@@ -234,10 +247,16 @@ class Board:
         if stable:
             return False
 
+        self.append_save(save)
         self.spawn()
         self.render()
 
         return True
+
+    def load(self):
+        if self.save:
+            self.coordinate = self.save.pop(-1)
+            self.render()
 
 
 def main():
@@ -270,6 +289,8 @@ def main():
                 elif event.key == pygame.K_RIGHT:
                     if board.right() and board.check():
                         signal = True
+                elif event.key == pygame.K_r:
+                    board.load()
 
         if signal:
             signal = False
